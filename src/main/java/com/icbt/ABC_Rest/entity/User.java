@@ -9,12 +9,14 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
+@Table(name = "user")
 public class User {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
 
+    @Id
     @Column(nullable = false, unique = true)
+    private String email;  // Primary key
+
+    @Column(nullable = false)
     private String username;
 
     @Column(nullable = false)
@@ -23,19 +25,14 @@ public class User {
     @Column(nullable = false)
     private String address;
 
-    @Column(nullable = false)
-    private String email;
-
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Role role;
 
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private Cart cart;
+
     public enum Role {
         ADMIN, STAFF, CUSTOMER
     }
-
-
 }
-
-
-
