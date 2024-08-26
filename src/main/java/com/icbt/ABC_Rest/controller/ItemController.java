@@ -1,6 +1,7 @@
 package com.icbt.ABC_Rest.controller;
 
 import com.icbt.ABC_Rest.dto.ItemDto;
+import com.icbt.ABC_Rest.service.ImageService;
 import com.icbt.ABC_Rest.service.ItemService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -23,6 +24,9 @@ public class ItemController {
 
     @Autowired
     private ItemService itemService;
+
+    @Autowired
+    private ImageService imageService;
 
     @Value("${file.upload-dir}")
     private String uploadDir;
@@ -49,12 +53,11 @@ public class ItemController {
             itemDto.setPrice(price);
             itemDto.setQuantity(quantity);
 
-            if (file != null && !file.isEmpty()) {
-                String imagePath = saveImage(file);
-                itemDto.setImagePath(imagePath);
-            }
+            String s = imageService.uploadImage(file);
+            itemDto.setImagePath(s);
 
             ItemDto createdItem = itemService.createItem(itemDto);
+            System.out.println(createdItem.getImagePath());
             return new ResponseEntity<>(createdItem, HttpStatus.CREATED);
         } catch (Exception e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);

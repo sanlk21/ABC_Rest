@@ -5,11 +5,14 @@ import com.icbt.ABC_Rest.entity.Order;
 import com.icbt.ABC_Rest.entity.Payment;
 import com.icbt.ABC_Rest.service.CartService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/cart")
+@CrossOrigin(origins = "http://127.0.0.1:5501")  // Ensure this matches the frontend origin
+
 public class CartController {
 
     @Autowired
@@ -18,8 +21,12 @@ public class CartController {
     @PostMapping("/add")
     public ResponseEntity<Cart> addItemToCart(@RequestParam String userEmail, @RequestParam Long itemId,
                                               @RequestParam int quantity) {
-        Cart cart = cartService.addItemToCart(userEmail, itemId, quantity);
-        return ResponseEntity.ok(cart);
+        try {
+            Cart cart = cartService.addItemToCart(userEmail, itemId, quantity);
+            return ResponseEntity.ok(cart);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
     }
 
     @GetMapping("/view")

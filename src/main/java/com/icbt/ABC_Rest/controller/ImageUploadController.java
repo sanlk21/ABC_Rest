@@ -18,6 +18,8 @@ import java.nio.file.StandardCopyOption;
 
 @RestController
 @RequestMapping("/api/uploads")
+@CrossOrigin(origins = "http://127.0.0.1:5501")  // Ensure this matches the frontend origin
+
 public class ImageUploadController {
 
     @Value("${file.upload-dir}")
@@ -47,29 +49,21 @@ public class ImageUploadController {
         return filePath.toString();
     }
 
-    @GetMapping("/images/{filename}")
+
+    @GetMapping("/images/{filename:.+}")
     public ResponseEntity<Resource> getImage(@PathVariable String filename) {
         try {
-            Path filePath = Paths.get(uploadDir).resolve(filename);
+            Path filePath = Paths.get(uploadDir).resolve(filename).normalize();
             Resource resource = new UrlResource(filePath.toUri());
 
             if (resource.exists()) {
-                // Determine the file's content type
-                String contentType = Files.probeContentType(filePath);
-
-                if (contentType == null) {
-                    contentType = "application/octet-stream";
-                }
-
                 return ResponseEntity.ok()
-                        .contentType(MediaType.parseMediaType(contentType))
+                        .contentType(MediaType.IMAGE_JPEG) // or use MediaType.IMAGE_PNG, etc.
                         .body(resource);
             } else {
                 return ResponseEntity.notFound().build();
             }
         } catch (MalformedURLException e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        } catch (IOException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
