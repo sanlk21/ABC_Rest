@@ -1,5 +1,6 @@
 package com.icbt.ABC_Rest.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -20,6 +21,7 @@ public class Cart {
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_email", referencedColumnName = "email", nullable = false)
+    @JsonManagedReference // Manage the reference in JSON serialization
     private User user;
 
     @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, fetch = FetchType.LAZY)

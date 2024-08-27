@@ -1,5 +1,6 @@
 package com.icbt.ABC_Rest.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -30,6 +31,7 @@ public class User {
     private Role role;
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonBackReference // Handle back reference in JSON serialization
     private Cart cart;
 
     public enum Role {

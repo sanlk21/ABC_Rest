@@ -11,45 +11,80 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/cart")
-@CrossOrigin(origins = "http://127.0.0.1:5501")  // Ensure this matches the frontend origin
-
 public class CartController {
 
     @Autowired
     private CartService cartService;
 
-    @PostMapping("/add")
-    public ResponseEntity<Cart> addItemToCart(@RequestParam String userEmail, @RequestParam Long itemId,
-                                              @RequestParam int quantity) {
+    @GetMapping("/view")
+    public ResponseEntity<?> viewCart(@RequestParam(required = false) String userEmail) {
+        if (userEmail == null || userEmail.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("User email is required");
+        }
         try {
-            Cart cart = cartService.addItemToCart(userEmail, itemId, quantity);
+            Cart cart = cartService.getOrCreateCart(userEmail);
             return ResponseEntity.ok(cart);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
     }
 
-    @GetMapping("/view")
-    public ResponseEntity<Cart> viewCart(@RequestParam String userEmail) {
-        Cart cart = cartService.getOrCreateCart(userEmail);
-        return ResponseEntity.ok(cart);
+    @PostMapping("/add")
+    public ResponseEntity<?> addItemToCart(
+            @RequestParam(required = false) String userEmail,
+            @RequestParam(required = false) Long itemId,
+            @RequestParam(required = false) Integer quantity) {
+        if (userEmail == null || userEmail.isEmpty() || itemId == null || quantity == null || quantity <= 0) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid input parameters");
+        }
+        try {
+            Cart updatedCart = cartService.addItemToCart(userEmail, itemId, quantity);
+            return ResponseEntity.ok(updatedCart);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
     }
 
     @DeleteMapping("/remove")
-    public ResponseEntity<Cart> removeItemFromCart(@RequestParam String userEmail, @RequestParam Long cartItemId) {
-        Cart cart = cartService.removeItemFromCart(userEmail, cartItemId);
-        return ResponseEntity.ok(cart);
+    public ResponseEntity<?> removeItemFromCart(
+            @RequestParam(required = false) String userEmail,
+            @RequestParam(required = false) Long cartItemId) {
+        if (userEmail == null || userEmail.isEmpty() || cartItemId == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid input parameters");
+        }
+        try {
+            Cart updatedCart = cartService.removeItemFromCart(userEmail, cartItemId);
+            return ResponseEntity.ok(updatedCart);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
     }
 
     @DeleteMapping("/clear")
-    public ResponseEntity<Cart> clearCart(@RequestParam String userEmail) {
-        Cart cart = cartService.clearCart(userEmail);
-        return ResponseEntity.ok(cart);
+    public ResponseEntity<?> clearCart(@RequestParam(required = false) String userEmail) {
+        if (userEmail == null || userEmail.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("User email is required");
+        }
+        try {
+            Cart clearedCart = cartService.clearCart(userEmail);
+            return ResponseEntity.ok(clearedCart);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
     }
 
     @PostMapping("/checkout")
-    public ResponseEntity<Order> checkout(@RequestParam String userEmail, @RequestParam Payment.PaymentMethod paymentMethod) {
-        Order order = cartService.checkout(userEmail, paymentMethod);
-        return ResponseEntity.ok(order);
+    public ResponseEntity<?> checkout(
+            @RequestParam(required = false) String userEmail,
+            @RequestParam(required = false) Payment.PaymentMethod paymentMethod) {
+        if (userEmail == null || userEmail.isEmpty() || paymentMethod == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid input parameters");
+        }
+        try {
+            Order order = cartService.checkout(userEmail, paymentMethod);
+            return ResponseEntity.ok(order);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
     }
 }

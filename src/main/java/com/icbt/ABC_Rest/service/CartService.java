@@ -4,6 +4,7 @@ import com.icbt.ABC_Rest.entity.*;
 import com.icbt.ABC_Rest.repo.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -31,60 +32,85 @@ public class CartService {
     @Autowired
     private PaymentRepo paymentRepo;
 
+    @Transactional
     public Cart getOrCreateCart(String userEmail) {
         Optional<Cart> cartOptional = cartRepo.findByUserEmail(userEmail);
-        return cartOptional.orElseGet(() -> createNewCart(userEmail));
+        if (cartOptional.isPresent()) {
+            return cartOptional.get();
+        } else {
+            return createNewCart(userEmail);
+        }
     }
 
     private Cart createNewCart(String userEmail) {
         User user = userRepo.findByEmail(userEmail);
         if (user == null) {
-            throw new RuntimeException("User not found");
+            // Log error or handle the situation as needed
+            throw new RuntimeException("User not found for email: " + userEmail);
         }
 
         Cart cart = new Cart();
         cart.setUser(user);
         cart.setTotalPrice(0.0);
+        cart.setCartItems(new ArrayList<>());
         return cartRepo.save(cart);
     }
 
+    @Transactional
     public Cart addItemToCart(String userEmail, Long itemId, int quantity) {
         Cart cart = getOrCreateCart(userEmail);
 
         Item item = itemRepo.findById(itemId).orElse(null);
         if (item == null) {
-            throw new RuntimeException("Item not found");
+            // Log error or handle the situation as needed
+            throw new RuntimeException("Item not found with ID: " + itemId);
         }
 
-        CartItem cartItem = new CartItem();
-        cartItem.setCart(cart);
-        cartItem.setItem(item);
-        cartItem.setQuantity(quantity);
-        cartItem.setPrice(item.getPrice() * quantity);
+        Optional<CartItem> existingCartItem = cart.getCartItems().stream()
+                .filter(ci -> ci.getItem().getId().equals(itemId))
+                .findFirst();
 
-        cart.getCartItems().add(cartItem);
-        cart.setTotalPrice(cart.getTotalPrice() + cartItem.getPrice());
+        if (existingCartItem.isPresent()) {
+            CartItem cartItem = existingCartItem.get();
+            cartItem.setQuantity(cartItem.getQuantity() + quantity);
+            cartItem.setPrice(item.getPrice() * cartItem.getQuantity());
+        } else {
+            CartItem cartItem = new CartItem();
+            cartItem.setCart(cart);
+            cartItem.setItem(item);
+            cartItem.setQuantity(quantity);
+            cartItem.setPrice(item.getPrice() * quantity);
+            cart.getCartItems().add(cartItem);
+        }
 
-        cartItemRepo.save(cartItem);
+        cart.setTotalPrice(cart.getCartItems().stream().mapToDouble(CartItem::getPrice).sum());
+
         return cartRepo.save(cart);
     }
 
+    @Transactional
     public Cart removeItemFromCart(String userEmail, Long cartItemId) {
         Cart cart = getOrCreateCart(userEmail);
 
-        CartItem cartItem = cartItemRepo.findById(cartItemId).orElse(null);
+        CartItem cartItem = cart.getCartItems().stream()
+                .filter(ci -> ci.getId().equals(cartItemId))
+                .findFirst()
+                .orElse(null);
+
         if (cartItem == null) {
-            throw new RuntimeException("CartItem not found");
+            // Log error or handle the situation as needed
+            throw new RuntimeException("CartItem not found with ID: " + cartItemId);
         }
 
         cart.getCartItems().remove(cartItem);
-        cart.setTotalPrice(cart.getTotalPrice() - cartItem.getPrice());
+        cart.setTotalPrice(cart.getCartItems().stream().mapToDouble(CartItem::getPrice).sum());
 
         cartItemRepo.delete(cartItem);
 
         return cartRepo.save(cart);
     }
 
+    @Transactional
     public Cart clearCart(String userEmail) {
         Cart cart = getOrCreateCart(userEmail);
         cartItemRepo.deleteAll(cart.getCartItems());
@@ -93,22 +119,23 @@ public class CartService {
         return cartRepo.save(cart);
     }
 
+    @Transactional
     public Order checkout(String userEmail, Payment.PaymentMethod paymentMethod) {
         Cart cart = getOrCreateCart(userEmail);
 
         if (cart.getCartItems().isEmpty()) {
+            // Log error or handle the situation as needed
             throw new RuntimeException("Cart is empty. Cannot proceed with checkout.");
         }
 
-        // Create an order from the cart
         Order order = new Order();
         order.setUser(cart.getUser());
         order.setTotalAmount(cart.getTotalPrice());
         order.setOrderDate(new Date());
         order.setStartDate(new Date());
-        order.setEndDate(new Date());  // Assuming endDate is the same as startDate
-        order.setStatus(Order.OrderStatus.PENDING);  // Initial status
-        order.setType(Order.OrderType.DELIVERY);  // Assuming default type is DELIVERY
+        order.setEndDate(new Date()); // Assuming endDate is the same as startDate
+        order.setStatus(Order.OrderStatus.PENDING);
+        order.setType(Order.OrderType.DELIVERY);
 
         List<OrderDetails> orderDetailsList = new ArrayList<>();
         for (CartItem cartItem : cart.getCartItems()) {
@@ -117,25 +144,22 @@ public class CartService {
             orderDetails.setItem(cartItem.getItem());
             orderDetails.setQuantity(cartItem.getQuantity());
             orderDetails.setPrice(cartItem.getPrice());
-
             orderDetailsList.add(orderDetails);
         }
         order.setOrderDetails(orderDetailsList);
 
-        orderRepo.save(order);  // Save the order
+        orderRepo.save(order);
 
-        // Create a payment for the order
         Payment payment = new Payment();
         payment.setOrder(order);
         payment.setUser(order.getUser());
         payment.setAmount(order.getTotalAmount());
         payment.setPaymentMethod(paymentMethod);
-        payment.setStatus(Payment.PaymentStatus.PENDING);  // Initial payment status
+        payment.setStatus(Payment.PaymentStatus.PENDING);
         payment.setPaymentDate(new Date());
 
-        paymentRepo.save(payment);  // Save the payment
+        paymentRepo.save(payment);
 
-        // Clear the cart after checkout
         clearCart(userEmail);
 
         return order;

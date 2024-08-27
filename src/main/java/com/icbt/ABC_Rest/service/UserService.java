@@ -77,12 +77,8 @@ public class UserService {
         }
     }
 
-    public boolean deleteUser(UserDto userDto) {
-        if (userDto == null || userDto.getEmail() == null || userDto.getEmail().isEmpty()) {
-            throw new IllegalArgumentException("Email cannot be null or empty");
-        }
-
-        User user = userRepo.findByEmail(userDto.getEmail());
+    public boolean deleteUserByEmail(String email) {
+        User user = userRepo.findByEmail(email);
         if (user != null) {
             userRepo.delete(user);
             return true;
