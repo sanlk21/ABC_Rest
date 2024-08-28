@@ -6,9 +6,9 @@ import org.springframework.stereotype.Repository;
 
 import java.util.Date;
 import java.util.List;
+
 @Repository
 public interface OrderRepo extends JpaRepository<Order, Long> {
-
 
     // Method to find orders by status
     List<Order> findByStatus(Order.OrderStatus status);
@@ -18,4 +18,7 @@ public interface OrderRepo extends JpaRepository<Order, Long> {
 
     // Method to find orders where startDate is before a certain date and endDate is after a certain date
     List<Order> findByStartDateBeforeAndEndDateAfter(Date startDate, Date endDate);
+
+    // Method to find orders by user email
+    List<Order> findByUser_Email(String email);
 }

@@ -23,10 +23,22 @@ public class OrderController {
         return ResponseEntity.ok(orders);
     }
 
+    @GetMapping("/new")
+    public ResponseEntity<List<OrderDto>> getNewOrders() {
+        List<OrderDto> newOrders = orderService.getNewOrders();
+        return ResponseEntity.ok(newOrders);
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<OrderDto> getOrderById(@PathVariable Long id) {
         OrderDto order = orderService.getOrderById(id);
         return ResponseEntity.ok(order);
+    }
+
+    @GetMapping("/user/{email}")
+    public ResponseEntity<List<OrderDto>> getOrdersByUserEmail(@PathVariable String email) {
+        List<OrderDto> userOrders = orderService.getOrdersByUserEmail(email);
+        return ResponseEntity.ok(userOrders);
     }
 
     @PostMapping("/saveOrder")
