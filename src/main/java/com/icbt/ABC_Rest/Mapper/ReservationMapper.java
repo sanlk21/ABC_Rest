@@ -14,7 +14,7 @@ public class ReservationMapper {
 
         ReservationDto dto = new ReservationDto();
         dto.setId(reservation.getId());
-        dto.setUserId(reservation.getUserId());
+        dto.setUserEmail(reservation.getUserEmail());
         dto.setDate(reservation.getDate());
         dto.setType(reservation.getType());
         dto.setNumberOfGuests(reservation.getNumberOfGuests());
@@ -30,7 +30,7 @@ public class ReservationMapper {
 
         Reservation reservation = new Reservation();
         reservation.setId(dto.getId());
-        reservation.setUserId(dto.getUserId());
+        reservation.setUserEmail(dto.getUserEmail());
         reservation.setDate(dto.getDate());
         reservation.setType(dto.getType());
         reservation.setNumberOfGuests(dto.getNumberOfGuests());

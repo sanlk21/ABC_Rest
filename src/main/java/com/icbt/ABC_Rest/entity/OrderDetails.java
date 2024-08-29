@@ -16,11 +16,11 @@ public class OrderDetails {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "order_id", nullable = false)
     private Order order;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "item_id", nullable = false)
     private Item item;
 
@@ -28,5 +28,5 @@ public class OrderDetails {
     private int quantity;
 
     @Column(nullable = false)
-    private double price;
+    private double price;  // price = item.price * quantity
 }

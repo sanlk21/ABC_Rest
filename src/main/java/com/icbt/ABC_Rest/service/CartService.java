@@ -132,8 +132,6 @@ public class CartService {
         order.setUser(cart.getUser());
         order.setTotalAmount(cart.getTotalPrice());
         order.setOrderDate(new Date());
-        order.setStartDate(new Date());
-        order.setEndDate(new Date()); // Assuming endDate is the same as startDate
         order.setStatus(Order.OrderStatus.PENDING);
         order.setType(Order.OrderType.DELIVERY);
 

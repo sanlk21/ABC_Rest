@@ -14,7 +14,7 @@ public class Reservation {
     private Long id;
 
     @Column(nullable = false)
-    private Long userId; // ID of the user making the reservation
+    private String userEmail;  // Corresponds to the User entity's email
 
     @Column(nullable = false)
     private LocalDateTime date; // Date and time of the reservation

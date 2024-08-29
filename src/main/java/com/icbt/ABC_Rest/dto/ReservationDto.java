@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class ReservationDto {
     private Long id;
-    private Long userId;
+    private String userEmail;  // Corresponds to the User entity's email
     private LocalDateTime date;
     private Reservation.ReservationType type; // Enum type for reservation type
     private Integer numberOfGuests;
