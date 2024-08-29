@@ -77,4 +77,5 @@ public class OrderController {
         List<OrderDto> activeOrders = orderService.getActiveOrders(currentDate);
         return ResponseEntity.ok(activeOrders);
     }
+
 }
