@@ -58,6 +58,12 @@ public class QAService {
         return qaList.stream().map(this::convertToDTO).collect(Collectors.toList());
     }
 
+    @Transactional(readOnly = true)
+    public List<QADto> getAllQuestions() {
+        List<QA> qaList = qaRepo.findAll();
+        return qaList.stream().map(this::convertToDTO).collect(Collectors.toList());
+    }
+
     private QADto convertToDTO(QA qa) {
         QADto dto = new QADto();
         dto.setId(qa.getId());
