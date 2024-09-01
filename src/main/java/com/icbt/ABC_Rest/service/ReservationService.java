@@ -1,11 +1,10 @@
 package com.icbt.ABC_Rest.service;
 
-import com.icbt.ABC_Rest.Mapper.ReservationMapper;
-import com.icbt.ABC_Rest.dto.ReservationDto;
 import com.icbt.ABC_Rest.entity.Reservation;
 import com.icbt.ABC_Rest.repo.ReservationRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -16,45 +15,41 @@ public class ReservationService {
     @Autowired
     private ReservationRepo reservationRepo;
 
-    @Autowired
-    private ReservationMapper reservationMapper;
-
-    public ReservationDto createReservation(ReservationDto reservationDTO) {
-        Reservation reservation = reservationMapper.toEntity(reservationDTO);
-        Reservation savedReservation = reservationRepo.save(reservation);
-        return reservationMapper.toDTO(savedReservation);
+    @Transactional
+    public Reservation createReservation(Reservation reservation) {
+        reservation.setStatus(Reservation.ReservationStatus.PENDING); // Set initial status to PENDING
+        return reservationRepo.save(reservation);
     }
 
-    public ReservationDto getReservation(Long id) {
-        Optional<Reservation> reservation = reservationRepo.findById(id);
-        return reservation.map(reservationMapper::toDTO).orElse(null);
+    @Transactional
+    public Optional<Reservation> getReservationById(Long id) {
+        return reservationRepo.findById(id);
     }
 
-    public List<ReservationDto> getAllReservations() {
-        return reservationRepo.findAll().stream()
-                .map(reservationMapper::toDTO)
-                .toList();
+    @Transactional
+    public List<Reservation> getAllReservations() {
+        return reservationRepo.findAll();
     }
 
-    public ReservationDto updateReservation(Long id, ReservationDto reservationDTO) {
-        if (reservationRepo.existsById(id)) {
-            Reservation reservation = reservationMapper.toEntity(reservationDTO);
-            reservation.setId(id);
-            Reservation updatedReservation = reservationRepo.save(reservation);
-            return reservationMapper.toDTO(updatedReservation);
-        }
-        return null;
+    @Transactional
+    public Reservation updateReservation(Long id, Reservation updatedReservation) {
+        return reservationRepo.findById(id).map(existingReservation -> {
+            existingReservation.setUserEmail(updatedReservation.getUserEmail());
+            existingReservation.setDate(updatedReservation.getDate());
+            existingReservation.setType(updatedReservation.getType());
+            existingReservation.setNumberOfGuests(updatedReservation.getNumberOfGuests());
+            existingReservation.setStatus(updatedReservation.getStatus());
+            return reservationRepo.save(existingReservation);
+        }).orElseThrow(() -> new RuntimeException("Reservation not found with id: " + id));
     }
 
+    @Transactional
     public void deleteReservation(Long id) {
         reservationRepo.deleteById(id);
     }
 
-    // New method to get reservations by user email
-    public List<ReservationDto> getReservationsByUserEmail(String email) {
-        List<Reservation> reservations = reservationRepo.findByUserEmail(email);
-        return reservations.stream()
-                .map(reservationMapper::toDTO)
-                .toList();
+    @Transactional
+    public List<Reservation> getReservationsByUserEmail(String userEmail) {
+        return reservationRepo.findByUserEmail(userEmail);
     }
 }
