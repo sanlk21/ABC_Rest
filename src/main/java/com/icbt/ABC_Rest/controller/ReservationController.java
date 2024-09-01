@@ -4,6 +4,7 @@ import com.icbt.ABC_Rest.dto.ReservationDto;
 import com.icbt.ABC_Rest.service.ReservationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
 import java.util.List;
 
 @RestController
@@ -37,5 +38,11 @@ public class ReservationController {
     @DeleteMapping("/{id}")
     public void deleteReservation(@PathVariable Long id) {
         reservationService.deleteReservation(id);
+    }
+
+    // New method to get reservations by user email
+    @GetMapping("/user/{email}")
+    public List<ReservationDto> getReservationsByUserEmail(@PathVariable String email) {
+        return reservationService.getReservationsByUserEmail(email);
     }
 }
