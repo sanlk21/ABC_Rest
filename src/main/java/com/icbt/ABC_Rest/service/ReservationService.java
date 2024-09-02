@@ -5,9 +5,6 @@ import com.icbt.ABC_Rest.repo.ReservationRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 <<<<<<< HEAD
-=======
-<<<<<<< HEAD
->>>>>>> 993f74eb03e8ada2d85c60964da13da5f6a936fd
 import org.springframework.transaction.annotation.Transactional;
 
 =======
@@ -22,37 +19,10 @@ public class ReservationService {
     private ReservationRepo ReservationRepo;
 
 <<<<<<< HEAD
-=======
-<<<<<<< HEAD
->>>>>>> 993f74eb03e8ada2d85c60964da13da5f6a936fd
     @Transactional
     public Reservation createReservation(Reservation reservation) {
         reservation.setStatus(Reservation.ReservationStatus.PENDING); // Set initial status to PENDING
         return reservationRepo.save(reservation);
-<<<<<<< HEAD
-    }
-
-    @Transactional
-    public Optional<Reservation> getReservationById(Long id) {
-        return reservationRepo.findById(id);
-    }
-
-    @Transactional
-    public List<Reservation> getAllReservations() {
-        return reservationRepo.findAll();
-    }
-
-    @Transactional
-    public Reservation updateReservation(Long id, Reservation updatedReservation) {
-        return reservationRepo.findById(id).map(existingReservation -> {
-            existingReservation.setUserEmail(updatedReservation.getUserEmail());
-            existingReservation.setDate(updatedReservation.getDate());
-            existingReservation.setType(updatedReservation.getType());
-            existingReservation.setNumberOfGuests(updatedReservation.getNumberOfGuests());
-            existingReservation.setStatus(updatedReservation.getStatus());
-            return reservationRepo.save(existingReservation);
-        }).orElseThrow(() -> new RuntimeException("Reservation not found with id: " + id));
-=======
     }
 
     @Transactional
@@ -105,7 +75,6 @@ public class ReservationService {
         }
         return null;
 >>>>>>> parent of e3d1a58 (update reservation)
->>>>>>> 993f74eb03e8ada2d85c60964da13da5f6a936fd
     }
 
     @Transactional
@@ -117,11 +86,8 @@ public class ReservationService {
     @Transactional
     public List<Reservation> getReservationsByUserEmail(String userEmail) {
         return reservationRepo.findByUserEmail(userEmail);
-<<<<<<< HEAD
-=======
 =======
         ReservationRepo.deleteById(id);
 >>>>>>> parent of e3d1a58 (update reservation)
->>>>>>> 993f74eb03e8ada2d85c60964da13da5f6a936fd
     }
 }

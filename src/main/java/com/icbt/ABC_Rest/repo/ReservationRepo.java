@@ -7,9 +7,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface ReservationRepo extends JpaRepository<Reservation, Long> {
-<<<<<<< HEAD
-    List<Reservation> findByUserEmail(String userEmail);
-=======
     // Custom query methods can be added here if needed
->>>>>>> 993f74eb03e8ada2d85c60964da13da5f6a936fd
 }
