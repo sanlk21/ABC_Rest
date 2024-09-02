@@ -2,8 +2,12 @@ package com.icbt.ABC_Rest.service;
 
 import com.icbt.ABC_Rest.dto.OrderDto;
 import com.icbt.ABC_Rest.dto.OrderDto.OrderDetailsDto;
-import com.icbt.ABC_Rest.entity.*;
-import com.icbt.ABC_Rest.repo.*;
+import com.icbt.ABC_Rest.entity.Order;
+import com.icbt.ABC_Rest.entity.OrderDetails;
+import com.icbt.ABC_Rest.entity.User;
+import com.icbt.ABC_Rest.repo.ItemRepo;
+import com.icbt.ABC_Rest.repo.OrderRepo;
+import com.icbt.ABC_Rest.repo.UserRepo;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -140,6 +144,20 @@ public class OrderService {
     public List<OrderDto> getActiveOrders(Date currentDate) {
         List<Order> orders = orderRepo.findByStartDateBeforeAndEndDateAfter(currentDate, currentDate);
         return orders.stream().map(this::convertOrderToDto).collect(Collectors.toList());
+    }
+
+    // New method to update order status (confirm/reject)
+    @Transactional
+    public OrderDto updateOrderStatus(Long id, String status) {
+        Order existingOrder = orderRepo.findById(id)
+                .orElseThrow(() -> new RuntimeException("Order not found with id: " + id));
+
+        existingOrder.setStatus(Order.OrderStatus.valueOf(status));
+
+        // Save the updated order status
+        Order updatedOrder = orderRepo.save(existingOrder);
+
+        return convertOrderToDto(updatedOrder);
     }
 
     private OrderDto convertOrderToDto(Order order) {
