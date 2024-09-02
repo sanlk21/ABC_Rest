@@ -15,4 +15,3 @@ public class ReservationDto {
     private Integer numberOfGuests;
     private Reservation.ReservationStatus status; // Enum type for reservation status
 }
-

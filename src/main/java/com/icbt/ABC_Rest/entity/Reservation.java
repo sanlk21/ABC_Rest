@@ -28,7 +28,7 @@ public class Reservation {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private ReservationStatus status;
+    private ReservationStatus status; // Status of the reservation (e.g., Confirmed, Pending, Cancelled)
 
     public enum ReservationType {
         DINE_IN,
@@ -40,8 +40,4 @@ public class Reservation {
         PENDING,
         CANCELLED
     }
-
-
-    // Status of the reservation (e.g., Confirmed, Pending, Cancelled)
 }
-

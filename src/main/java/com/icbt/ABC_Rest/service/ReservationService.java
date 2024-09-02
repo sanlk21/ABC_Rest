@@ -1,93 +1,88 @@
 package com.icbt.ABC_Rest.service;
 
+import com.icbt.ABC_Rest.dto.ReservationDto;
 import com.icbt.ABC_Rest.entity.Reservation;
 import com.icbt.ABC_Rest.repo.ReservationRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-<<<<<<< HEAD
-import org.springframework.transaction.annotation.Transactional;
 
-=======
->>>>>>> parent of e3d1a58 (update reservation)
 import java.util.List;
-import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class ReservationService {
 
     @Autowired
-    private ReservationRepo ReservationRepo;
+    private ReservationRepo reservationRepo;
 
-<<<<<<< HEAD
-    @Transactional
-    public Reservation createReservation(Reservation reservation) {
-        reservation.setStatus(Reservation.ReservationStatus.PENDING); // Set initial status to PENDING
-        return reservationRepo.save(reservation);
-    }
-
-    @Transactional
-    public Optional<Reservation> getReservationById(Long id) {
-        return reservationRepo.findById(id);
-    }
-
-    @Transactional
-    public List<Reservation> getAllReservations() {
-        return reservationRepo.findAll();
-    }
-
-    @Transactional
-    public Reservation updateReservation(Long id, Reservation updatedReservation) {
-        return reservationRepo.findById(id).map(existingReservation -> {
-            existingReservation.setUserEmail(updatedReservation.getUserEmail());
-            existingReservation.setDate(updatedReservation.getDate());
-            existingReservation.setType(updatedReservation.getType());
-            existingReservation.setNumberOfGuests(updatedReservation.getNumberOfGuests());
-            existingReservation.setStatus(updatedReservation.getStatus());
-            return reservationRepo.save(existingReservation);
-        }).orElseThrow(() -> new RuntimeException("Reservation not found with id: " + id));
-=======
-    @Autowired
-    private ReservationMapper reservationMapper;
-
-    public ReservationDto createReservation(ReservationDto reservationDTO) {
-        Reservation reservation = reservationMapper.toEntity(reservationDTO);
-        Reservation savedReservation = ReservationRepo.save(reservation);
-        return reservationMapper.toDTO(savedReservation);
-    }
-
-    public ReservationDto getReservation(Long id) {
-        Optional<Reservation> reservation = ReservationRepo.findById(id);
-        return reservation.map(reservationMapper::toDTO).orElse(null);
-    }
-
+    // Get all reservations
     public List<ReservationDto> getAllReservations() {
-        return ReservationRepo.findAll().stream()
-                .map(reservationMapper::toDTO)
-                .toList();
+        return reservationRepo.findAll().stream()
+                .map(this::convertToDto)
+                .collect(Collectors.toList());
     }
 
-    public ReservationDto updateReservation(Long id, ReservationDto reservationDTO) {
-        if (ReservationRepo.existsById(id)) {
-            Reservation reservation = reservationMapper.toEntity(reservationDTO);
-            reservation.setId(id);
-            Reservation updatedReservation = ReservationRepo.save(reservation);
-            return reservationMapper.toDTO(updatedReservation);
-        }
-        return null;
->>>>>>> parent of e3d1a58 (update reservation)
+    // Get a specific reservation by ID
+    public ReservationDto getReservationById(Long id) {
+        return reservationRepo.findById(id)
+                .map(this::convertToDto)
+                .orElseThrow(() -> new RuntimeException("Reservation not found with id " + id));
     }
 
-    @Transactional
+    // Create a new reservation
+    public ReservationDto createReservation(ReservationDto reservationDto) {
+        Reservation reservation = convertToEntity(reservationDto);
+        return convertToDto(reservationRepo.save(reservation));
+    }
+
+    // Update an existing reservation
+    public ReservationDto updateReservation(Long id, ReservationDto reservationDetails) {
+        Reservation reservation = reservationRepo.findById(id)
+                .orElseThrow(() -> new RuntimeException("Reservation not found with id " + id));
+
+        reservation.setDate(reservationDetails.getDate());
+        reservation.setUserEmail(reservationDetails.getUserEmail());
+        reservation.setType(reservationDetails.getType());
+        reservation.setNumberOfGuests(reservationDetails.getNumberOfGuests());
+        reservation.setStatus(reservationDetails.getStatus());
+
+        return convertToDto(reservationRepo.save(reservation));
+    }
+
+    // Delete a reservation
     public void deleteReservation(Long id) {
-<<<<<<< HEAD
-        reservationRepo.deleteById(id);
+        Reservation reservation = reservationRepo.findById(id)
+                .orElseThrow(() -> new RuntimeException("Reservation not found with id " + id));
+        reservationRepo.delete(reservation);
     }
 
-    @Transactional
-    public List<Reservation> getReservationsByUserEmail(String userEmail) {
-        return reservationRepo.findByUserEmail(userEmail);
-=======
-        ReservationRepo.deleteById(id);
->>>>>>> parent of e3d1a58 (update reservation)
+    // Find reservations by user email
+    public List<ReservationDto> findReservationsByUserEmail(String userEmail) {
+        return reservationRepo.findByUserEmail(userEmail).stream()
+                .map(this::convertToDto)
+                .collect(Collectors.toList());
+    }
+
+    // Convert entity to DTO
+    private ReservationDto convertToDto(Reservation reservation) {
+        ReservationDto reservationDto = new ReservationDto();
+        reservationDto.setId(reservation.getId());
+        reservationDto.setUserEmail(reservation.getUserEmail());
+        reservationDto.setDate(reservation.getDate());
+        reservationDto.setType(reservation.getType());
+        reservationDto.setNumberOfGuests(reservation.getNumberOfGuests());
+        reservationDto.setStatus(reservation.getStatus());
+        return reservationDto;
+    }
+
+    // Convert DTO to entity
+    private Reservation convertToEntity(ReservationDto reservationDto) {
+        Reservation reservation = new Reservation();
+        reservation.setUserEmail(reservationDto.getUserEmail());
+        reservation.setDate(reservationDto.getDate());
+        reservation.setType(reservationDto.getType());
+        reservation.setNumberOfGuests(reservationDto.getNumberOfGuests());
+        reservation.setStatus(reservationDto.getStatus());
+        return reservation;
     }
 }
