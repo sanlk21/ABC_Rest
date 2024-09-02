@@ -1,48 +1,58 @@
 package com.icbt.ABC_Rest.controller;
 
-import com.icbt.ABC_Rest.dto.ReservationDto;
+import com.icbt.ABC_Rest.entity.Reservation;
 import com.icbt.ABC_Rest.service.ReservationService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
+import java.util.Optional;
 
 @RestController
-@RequestMapping("/reservations")
-@CrossOrigin(origins = "http://127.0.0.1:5501")  // Ensure this matches the frontend origin
+@RequestMapping("/api/v1/reservations")
+@CrossOrigin(origins = "http://127.0.0.1:5501") // Match frontend origin
 public class ReservationController {
 
     @Autowired
     private ReservationService reservationService;
 
     @PostMapping
-    public ReservationDto createReservation(@RequestBody ReservationDto reservationDTO) {
-        return reservationService.createReservation(reservationDTO);
+    public ResponseEntity<Reservation> createReservation(@RequestBody Reservation reservation) {
+        Reservation createdReservation = reservationService.createReservation(reservation);
+        return ResponseEntity.ok(createdReservation);
     }
 
     @GetMapping("/{id}")
-    public ReservationDto getReservation(@PathVariable Long id) {
-        return reservationService.getReservation(id);
+    public ResponseEntity<Reservation> getReservationById(@PathVariable Long id) {
+        Optional<Reservation> reservation = reservationService.getReservationById(id);
+        return reservation.map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @GetMapping
-    public List<ReservationDto> getAllReservations() {
-        return reservationService.getAllReservations();
+    public ResponseEntity<List<Reservation>> getAllReservations() {
+        List<Reservation> reservations = reservationService.getAllReservations();
+        return ResponseEntity.ok(reservations);
     }
 
     @PutMapping("/{id}")
-    public ReservationDto updateReservation(@PathVariable Long id, @RequestBody ReservationDto reservationDTO) {
-        return reservationService.updateReservation(id, reservationDTO);
+    public ResponseEntity<Reservation> updateReservation(@PathVariable Long id, @RequestBody Reservation reservation) {
+        Reservation updatedReservation = reservationService.updateReservation(id, reservation);
+        return ResponseEntity.ok(updatedReservation);
     }
 
     @DeleteMapping("/{id}")
-    public void deleteReservation(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteReservation(@PathVariable Long id) {
         reservationService.deleteReservation(id);
+        return ResponseEntity.noContent().build();
     }
+<<<<<<< HEAD
 
-    // New method to get reservations by user email
     @GetMapping("/user/{email}")
-    public List<ReservationDto> getReservationsByUserEmail(@PathVariable String email) {
-        return reservationService.getReservationsByUserEmail(email);
+    public ResponseEntity<List<Reservation>> getReservationsByUserEmail(@PathVariable String email) {
+        List<Reservation> reservations = reservationService.getReservationsByUserEmail(email);
+        return ResponseEntity.ok(reservations);
     }
+=======
+>>>>>>> parent of e3d1a58 (update reservation)
 }
