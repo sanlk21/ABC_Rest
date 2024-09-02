@@ -1,17 +1,16 @@
 package com.icbt.ABC_Rest.dto;
 
-import com.icbt.ABC_Rest.entity.Reservation;
+import com.icbt.ABC_Rest.entity.Reservation.ReservationStatus;
+import com.icbt.ABC_Rest.entity.Reservation.ReservationType;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 
 @Data
-@NoArgsConstructor
 public class ReservationDto {
     private Long id;
-    private String userEmail;  // Corresponds to the User entity's email
+    private String userEmail;
     private LocalDateTime date;
-    private Reservation.ReservationType type; // Enum type for reservation type
+    private ReservationType type;
     private Integer numberOfGuests;
-    private Reservation.ReservationStatus status; // Enum type for reservation status
+    private ReservationStatus status;  // Ensure this is of type ReservationStatus
 }

@@ -1,6 +1,7 @@
 package com.icbt.ABC_Rest.controller;
 
 import com.icbt.ABC_Rest.dto.ReservationDto;
+import com.icbt.ABC_Rest.entity.Reservation;
 import com.icbt.ABC_Rest.service.ReservationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -35,9 +36,20 @@ public class ReservationController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ReservationDto> updateReservation(@PathVariable Long id, @RequestBody ReservationDto reservationDetails) {
-        ReservationDto updatedReservation = reservationService.updateReservation(id, reservationDetails);
+    public ResponseEntity<ReservationDto> updateReservation(@PathVariable Long id, @RequestBody ReservationDto reservationDto) {
+        // Ensure the status is properly handled if it's not already an enum
+        if (reservationDto.getStatus() != null) {
+            reservationDto.setStatus(Reservation.ReservationStatus.valueOf(reservationDto.getStatus().toString()));
+        }
+
+        ReservationDto updatedReservation = reservationService.updateReservation(id, reservationDto);
         return ResponseEntity.ok(updatedReservation);
+    }
+
+    @PutMapping("/{id}/confirm")
+    public ResponseEntity<ReservationDto> confirmReservation(@PathVariable Long id) {
+        ReservationDto confirmedReservation = reservationService.confirmReservation(id);
+        return ResponseEntity.ok(confirmedReservation);
     }
 
     @DeleteMapping("/{id}")

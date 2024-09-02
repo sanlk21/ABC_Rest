@@ -44,7 +44,20 @@ public class ReservationService {
         reservation.setUserEmail(reservationDetails.getUserEmail());
         reservation.setType(reservationDetails.getType());
         reservation.setNumberOfGuests(reservationDetails.getNumberOfGuests());
+
+        // Convert the status from the DTO to the appropriate enum type if necessary
         reservation.setStatus(reservationDetails.getStatus());
+
+        return convertToDto(reservationRepo.save(reservation));
+    }
+
+    // Confirm a reservation
+    public ReservationDto confirmReservation(Long id) {
+        Reservation reservation = reservationRepo.findById(id)
+                .orElseThrow(() -> new RuntimeException("Reservation not found with id " + id));
+
+        // Set status to CONFIRMED using the enum
+        reservation.setStatus(Reservation.ReservationStatus.CONFIRMED);
 
         return convertToDto(reservationRepo.save(reservation));
     }
