@@ -5,7 +5,6 @@ import com.icbt.ABC_Rest.service.ReservationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 import java.util.Optional;
 
@@ -47,10 +46,13 @@ public class ReservationController {
         reservationService.deleteReservation(id);
         return ResponseEntity.noContent().build();
     }
+<<<<<<< HEAD
 
     @GetMapping("/user/{email}")
     public ResponseEntity<List<Reservation>> getReservationsByUserEmail(@PathVariable String email) {
         List<Reservation> reservations = reservationService.getReservationsByUserEmail(email);
         return ResponseEntity.ok(reservations);
     }
+=======
+>>>>>>> parent of e3d1a58 (update reservation)
 }
