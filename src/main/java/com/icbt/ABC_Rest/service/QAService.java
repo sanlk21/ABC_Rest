@@ -64,6 +64,13 @@ public class QAService {
         return qaList.stream().map(this::convertToDTO).collect(Collectors.toList());
     }
 
+    @Transactional
+    public void deleteQuestion(Long id) {
+        QA qa = qaRepo.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Question not found with id: " + id));
+        qaRepo.delete(qa);
+    }
+
     private QADto convertToDTO(QA qa) {
         QADto dto = new QADto();
         dto.setId(qa.getId());
