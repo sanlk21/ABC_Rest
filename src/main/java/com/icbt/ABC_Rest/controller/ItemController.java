@@ -74,6 +74,9 @@ public class ItemController {
             @RequestParam("quantity") Integer quantity,
             @RequestParam(value = "image", required = false) MultipartFile file) {
         try {
+            // Retrieve the existing item to maintain current image if no new file is uploaded
+            ItemDto existingItem = itemService.getItemById(id);
+
             ItemDto itemDto = new ItemDto();
             itemDto.setId(id);
             itemDto.setName(name);
@@ -84,7 +87,9 @@ public class ItemController {
 
             if (file != null && !file.isEmpty()) {
                 String imagePath = saveImage(file);
-                itemDto.setImagePath(imagePath);
+                itemDto.setImagePath(imagePath);  // Set new image path if file is uploaded
+            } else {
+                itemDto.setImagePath(existingItem.getImagePath());  // Retain old image if no new file
             }
 
             ItemDto updatedItem = itemService.updateItem(itemDto);
@@ -93,6 +98,7 @@ public class ItemController {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
 
     @DeleteMapping("/deleteItem/{id}")
     public ResponseEntity<Void> deleteItem(@PathVariable Long id) {

@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import jakarta.transaction.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -37,6 +38,15 @@ public class ItemService {
         List<Item> itemList = itemRepo.findAll();
         return itemList.stream().map(this::convertToDto).collect(Collectors.toList());
     }
+    public ItemDto getItemById(Long id) {
+        Optional<Item> itemOptional = itemRepo.findById(id);
+        if (itemOptional.isPresent()) {
+            return convertToDto(itemOptional.get());
+        } else {
+            throw new RuntimeException("Item not found with id: " + id);
+        }
+    }
+
 
     public ItemDto updateItem(ItemDto itemDto) {
         if (itemDto.getId() == null || !itemRepo.existsById(itemDto.getId())) {
